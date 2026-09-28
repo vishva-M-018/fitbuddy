@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero compact">
+    <p class="eyebrow">LOCAL ADMIN VIEW</p>
+    <h1>All FitBuddy users</h1>
+    <p class="lead">Review saved profiles and original/updated plans.</p>
+</section>
+
+{% if not users %}
+<div class="card"><p>No users have been created yet.</p></div>
+{% endif %}
+
+{% for user in users %}
+<section class="card admin-card">
+    <div class="result-header">
+        <div>
+            <h2>{{ user.username }}</h2>
+            <p class="muted">ID: {{ user.user_id }} · {{ user.goal }} · {{ user.intensity }}</p>
+        </div>
+        <form action="/delete-user" method="post" class="inline-form"
+              onsubmit="return confirm('Delete this user and their plans?')">
+            <input type="hidden" name="user_id" value="{{ user.user_id }}">
+            <input name="admin_token" type="password" required placeholder="Admin token">
+            <button class="btn danger" type="submit">Delete</button>
+        </form>
+    </div>
+
+    <div class="profile-grid">
+        <div><strong>Age</strong><span>{{ user.age }}</span></div>
+        <div><strong>Weight</strong><span>{{ user.weight }} kg</span></div>
+        <div><strong>Created</strong><span>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</span></div>
+    </div>
+
+    {% for plan in user.plans %}
+    <details>
+        <summary>Plan #{{ plan.id }} — {{ plan.created_at.strftime('%Y-%m-%d %H:%M') }}</summary>
+        <h3>Original plan</h3>
+        <pre class="plan">{{ plan.original_plan }}</pre>
+        {% if plan.updated_plan %}
+        <h3>Updated plan</h3>
+        <pre class="plan">{{ plan.updated_plan }}</pre>
+        <p><strong>Feedback:</strong> {{ plan.feedback }}</p>
+        {% endif %}
+    </details>
+    {% endfor %}
+</section>
+{% endfor %}
+{% endblock %}
